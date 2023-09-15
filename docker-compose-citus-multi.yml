@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  coordinator:
+    image: citusdata/citus:12.0
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+#      POSTGRES_DB: postgres
+#    command: ["-c", "shared_preload_libraries='citus'"]
+#    volumes:
+#      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+
+  worker1:
+    image: citusdata/citus:12.0
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+#      POSTGRES_DB: postgres
+#    command: ["-c", "shared_preload_libraries='citus'"]
+    volumes:
+      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+
+  worker2:
+    image: citusdata/citus:12.0
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+#      POSTGRES_DB: postgres
+#    command: ["-c", "shared_preload_libraries='citus'"]
+    volumes:
+      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf

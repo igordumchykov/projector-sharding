@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  postgresql-b:
+    container_name: "postgresql-b"
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_b_data:/var/lib/postgresql/data
+  postgresql-b1:
+    container_name: "postgresql-b1"
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_b1_data:/var/lib/postgresql/data
+  postgresql-b2:
+    container_name: "postgresql-b2"
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5434:5432'
+    volumes:
+      - postgres_b2_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_b_data: { }
+  postgres_b1_data: { }
+  postgres_b2_data: { }

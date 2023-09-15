@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  citus-single:
+    container_name: "citus-single"
+    image: citusdata/citus:12.0
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data_citus:/var/lib/postgresql/data
+
+volumes:
+  postgres_data_citus: { }
