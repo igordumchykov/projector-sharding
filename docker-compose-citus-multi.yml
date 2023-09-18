@@ -1,33 +1,42 @@
-version: '3.8'
+version: "3"
+
 services:
-  coordinator:
-    image: citusdata/citus:12.0
-    ports:
-      - "5432:5432"
-    environment:
+  master:
+    container_name: "master"
+    image: "citusdata/citus:12.0.0"
+    ports: ["${COORDINATOR_EXTERNAL_PORT:-5432}:5432"]
+    labels: ["com.citusdata.role=Master"]
+    environment: &AUTH
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-#      POSTGRES_DB: postgres
-#    command: ["-c", "shared_preload_libraries='citus'"]
-#    volumes:
-#      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
-
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      POSTGRES_HOST_AUTH_METHOD: "${POSTGRES_HOST_AUTH_METHOD:-trust}"
   worker1:
-    image: citusdata/citus:12.0
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-#      POSTGRES_DB: postgres
-#    command: ["-c", "shared_preload_libraries='citus'"]
+    container_name: "worker1"
+    image: "citusdata/citus:12.0.0"
+    labels: ["com.citusdata.role=Worker"]
+    depends_on: [manager]
+    environment: *AUTH
+    command: "/wait-for-manager.sh"
     volumes:
-      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
-
+      - healthcheck-volume:/healthcheck
   worker2:
-    image: citusdata/citus:12.0
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-#      POSTGRES_DB: postgres
-#    command: ["-c", "shared_preload_libraries='citus'"]
+    container_name: "worker2"
+    image: "citusdata/citus:12.0.0"
+    labels: [ "com.citusdata.role=Worker" ]
+    depends_on: [ manager ]
+    environment: *AUTH
+    command: "/wait-for-manager.sh"
     volumes:
-      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      - healthcheck-volume:/healthcheck
+  manager:
+    container_name: "manager"
+    image: "citusdata/membership-manager:0.3.0"
+    volumes:
+      - "${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock"
+      - healthcheck-volume:/healthcheck
+    depends_on: [master]
+    environment: *AUTH
+volumes:
+  healthcheck-volume:

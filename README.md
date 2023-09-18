@@ -133,6 +133,27 @@ CREATE TABLE if not exists books
 3. Insert [data](./data_insert.sql)
 4. Run select [queries](./data_select.sql)
 
+# Citus Multi Node
+
+I could not set up partition by category_id field due to error that category_id should be included in PK.
+Therefore, let's partition by id: first 1/2 items will be kept in 1 table, another 1/2 items - in another table.
+
+1. Run [docker compose file for citus multi node](./docker-compose-citus-multi.yml)
+2. Login to master table and run:
+```postgresql
+CREATE TABLE books
+(
+    id          SERIAL PRIMARY KEY,
+    category_id INT,
+    title       VARCHAR(50) NOT NULL
+) partition by range (id);
+
+CREATE TABLE books_0_50000 PARTITION OF books FOR VALUES FROM (1) TO (50000);
+CREATE TABLE books_50001_1000000 PARTITION OF books FOR VALUES FROM (50001) TO (1000000);
+```
+3. Insert [data](./data_insert.sql)
+4. Run select [queries](./data_select.sql)
+
 # Comparison Table
 
 | Mode                 | Insert 1M rows, ms | Select 10000 rows,ms |
@@ -140,5 +161,5 @@ CREATE TABLE if not exists books
 | FWD                  | 169,971            | 45,117               |
 | Single Postgres Node | 32,284             | 23,434               |
 | Citus Single Node    | 32,706             | 26,075               |
-| Citus Multi Node     |                    |                      |
+| Citus Multi Node     | 55,266             | 27,726               |
 
